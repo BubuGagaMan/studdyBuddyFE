@@ -2,12 +2,8 @@
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { useAuthStore } from "../store/useAuthStore";
-//10.131.3.79 172.17.0.1 172.19.0.1 172.18.0.1
-// ⚠️ IMPORTANT: Replace this with your computer's ACTUAL local IP address again
-const BASE_URL =
-  // "http://10.131.3.79:3001";
-  // "http://192.168.0.79:3001";
-  "https://api.plan-my-holiday.org";
+
+const BASE_URL = process.env.EXPO_BASE_URL;
 
 export const api = axios.create({
   baseURL: BASE_URL,
