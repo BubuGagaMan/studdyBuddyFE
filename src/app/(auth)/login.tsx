@@ -1,10 +1,10 @@
-// src/app/(auth)/login.tsx
 import { colors } from "@/constants/colors";
 import { useRouter } from "expo-router";
 import * as SecureStore from "expo-secure-store";
 import { useState } from "react";
 import {
   Alert,
+  Platform,
   StyleSheet,
   Text,
   TextInput,
@@ -31,10 +31,16 @@ export default function LoginScreen() {
     setIsSubmitting(true);
     try {
       const response = await api.post("/login", { username, password });
-      const { accessToken, refreshToken } = response.data.data;
 
-      await SecureStore.setItemAsync("access_token", accessToken);
-      await SecureStore.setItemAsync("refresh_token", refreshToken);
+      const { accessToken, refreshToken } = response.data.data || {};
+
+      // handle SecureStore only for mobile
+      if (Platform.OS !== "web") {
+        await SecureStore.setItemAsync("access_token", accessToken);
+        if (refreshToken) {
+          await SecureStore.setItemAsync("refresh_token", refreshToken);
+        }
+      }
 
       setAuth(
         { id: "temp-id", username, email: "", roles: [], suspended: false },
