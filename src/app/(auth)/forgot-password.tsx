@@ -1,4 +1,5 @@
 // src/app/forgot-password.tsx
+import { api } from "@/api/client";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -14,8 +15,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { api } from "../api/client";
-import { colors } from "../constants/colors";
+import { colors } from "../../constants/colors";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
