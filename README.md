@@ -1,20 +1,72 @@
-# Welcome to your Expo app 👋
+# FRONT END
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## Setup
 
-## Get started
+### Environment variables
+
+- EXPO_PUBLIC_BASE_URL = back end URL - see Post Installation Usage below for setting up this variable
+- Ensure that your front end port matches your back end environemtn variables
+
+### Installation and start
 
 1. Install dependencies
 
-   ```bash
+   ```
    npm install
    ```
 
 2. Start the app
 
-   ```bash
-   npx expo start
    ```
+   npm run start
+   ```
+
+### Post installation usage - web vs mobile
+
+After start, you would see something such as:
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+█ ▄▄▄▄▄ █▄▀▀▄▄▀▀█ █ ▄▄▄▄▄ █
+█ █ █ ███▄█ ███ █ █ █
+█ █▄▄▄█ ██▄▀▄▀ ██▀█ █▄▄▄█ █
+█▄▄▄▄▄▄▄█ █ ▀▄▀ ▀ █▄▄▄▄▄▄▄█
+█ █ ▄█▄▀█ ▄▄▀▀█▀ █▄█▀█▀▀▄█
+█▄█▄ ▀▄▄▀▀ ▀█▄▄▀▀███▄▀▀ █
+█▀▄▀█▄ ▄▄▄▄█▄▄▀▄ █ ▄▀▀█▀ ██
+█ ▄▄ ▀█▄ ▀█▀ ▄▄▀ ▄▀ ██▄▀ █
+█▄██▄██▄▄▀▀█▀▀ █ ▄▄▄ ▄▀▄█
+█ ▄▄▄▄▄ ██▄▄▄▀ █ █▄█ ██▀▄█
+█ █ █ █ █▄██▄ ▄ ▄ █ █
+█ █▄▄▄█ █▀▄▀█▄▄▄ ▄█▀▀▄█ █
+█▄▄▄▄▄▄▄█▄▄▄█▄▄▄▄▄▄█▄▄███▄█
+
+› Scan the QR code above to open in Expo Go.
+› Metro: exp://x.x.x.x:8082
+› Web: http://localhost:8082
+
+## USING WEB:
+
+- Set the EXPO_PUBLIC_BASE_URL variable to http://localhost:[BACK END PORT]; e.g. http://localhost:3001
+  This will setup the front end to communicate with the correct backend
+
+- As previously mentioned, MAKE SURE that the backend also communicates with the correct front end by using the correct port (8082 in setup) (in the BE variables)
+
+- local host might not work, if this happens - use https://127.0.0.1:[PORT] - both in the respective back end and front end variables
+
+- Simply use the web url provided in your browser
+
+## USING MOBILE
+
+- Install the expo go app on your phone
+
+- MAKE SURE that your phone and laptop/hosting machine are on the same wifi/mobile network
+- Copy only the Metro IP address (x.x.x.x) - this is the IP of your hosting machine within the network tunnel created for the expo app
+- Set the EXPO_PUBLIC_BASE_URL variable to http://x.x.x.x:[BACK END PORT]
+
+- Using the expo go app, scan the QR code or enter the metro url manually (FE port)
+
+---
+
+## BELOW COMES ON BASE EXPO PROJECT SETUP, KEEPING IT FOR NOW IDK
 
 In the output, you'll find options to open the app in a
 
