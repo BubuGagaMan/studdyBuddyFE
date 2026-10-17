@@ -25,7 +25,7 @@ export const useUpdateItemEntry = (checklistId: string) => {
       itemId: string;
       payload: any;
     }) => {
-      const response = await api.patch(`/${itemId}/entry`, payload);
+      const response = await api.patch(`/checklist/item/${itemId}/entry`, payload);
       return response.data;
     },
 

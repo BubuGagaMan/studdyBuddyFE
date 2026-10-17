@@ -3,8 +3,7 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { useAuthStore } from "../store/useAuthStore";
-
-const BASE_URL = process.env.EXPO_PUBLIC_BASE_URL!;
+import { BASE_URL, CLIENT_TYPE } from "./config";
 
 export const api = axios.create({
   baseURL: BASE_URL,
@@ -13,6 +12,17 @@ export const api = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// endpoints where a 401 means bad credentials/code, not an expired access token
+const NO_REFRESH_PATHS = [
+  "/login",
+  "/logout",
+  "/refresh-token",
+  "/register",
+  "/register-confirmation",
+  "/password-reset-code",
+  "/user-password-reset",
+];
 
 const getAccessToken = async () => {
   if (Platform.OS === "web") {
@@ -29,7 +39,7 @@ api.interceptors.request.use(async (config) => {
     config.headers["access-token"] = token;
   }
 
-  config.headers["x-client-type"] = Platform.OS === "web" ? "web" : "mobile";
+  config.headers["x-client-type"] = CLIENT_TYPE;
 
   // Grab the native device timezone (e.g., "Europe/London")
   const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -40,52 +50,65 @@ api.interceptors.request.use(async (config) => {
   return config;
 });
 
+// The backend rotates the refresh token on every refresh, so concurrent 401s must share
+// a single refresh call - a second call would send the already-revoked token and fail.
+let refreshPromise: Promise<string> | null = null;
+
+const refreshAccessToken = async (): Promise<string> => {
+  let refreshPayload = {};
+
+  // mobile needs to send the token in the body, web relies on the httpOnly cookie
+  if (Platform.OS !== "web") {
+    const refreshToken = await SecureStore.getItemAsync("refresh_token");
+    if (!refreshToken) throw new Error("No refresh token available");
+    refreshPayload = { refreshToken };
+  }
+
+  // plain axios to prevent interceptor infinite loops
+  const response = await axios.post(`${BASE_URL}/refresh-token`, refreshPayload, {
+    withCredentials: true,
+    headers: { "x-client-type": CLIENT_TYPE },
+  });
+
+  const { accessToken: newAccess, refreshToken: newRefresh } =
+    response.data.data;
+
+  // Save tokens natively ONLY if on mobile
+  if (Platform.OS !== "web") {
+    await SecureStore.setItemAsync("access_token", newAccess);
+    if (newRefresh) {
+      await SecureStore.setItemAsync("refresh_token", newRefresh);
+    }
+  }
+
+  const { user, setAuth } = useAuthStore.getState();
+  setAuth(user!, newAccess);
+
+  return newAccess;
+};
+
 // Intercept responses to handle seamless 401 token refreshes
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const isRefreshable =
+      originalRequest && !NO_REFRESH_PATHS.includes(originalRequest.url);
 
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      error.response?.status === 401 &&
+      isRefreshable &&
+      !originalRequest._retry
+    ) {
       originalRequest._retry = true;
 
       try {
-        let refreshPayload = {};
-
-        // mobile needs to send the token in the body, web leaves payload empty.
-        if (Platform.OS !== "web") {
-          const refreshToken = await SecureStore.getItemAsync("refresh_token");
-          if (!refreshToken) throw new Error("No refresh token available");
-          refreshPayload = { refreshToken };
+        if (!refreshPromise) {
+          refreshPromise = refreshAccessToken().finally(() => {
+            refreshPromise = null;
+          });
         }
-
-        // prevent interceptor infinite loops
-        const response = await axios.post(
-          `${BASE_URL}/refresh-token`,
-          refreshPayload,
-          {
-            withCredentials: true,
-          },
-        );
-
-        const { accessToken: newAccess, refreshToken: newRefresh } =
-          response.data.data;
-
-        // Save tokens natively ONLY if on mobile
-        if (Platform.OS !== "web") {
-          await SecureStore.setItemAsync("access_token", newAccess);
-          if (newRefresh) {
-            await SecureStore.setItemAsync("refresh_token", newRefresh);
-          }
-        }
-
-        // Update global state & retry request (for both platforms)
-        useAuthStore
-          .getState()
-          .setAuth(
-            response.data.data.user || useAuthStore.getState().user,
-            newAccess,
-          );
+        const newAccess = await refreshPromise;
 
         originalRequest.headers["access-token"] = newAccess;
 

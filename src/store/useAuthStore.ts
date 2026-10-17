@@ -2,8 +2,8 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { create } from "zustand";
+import { BASE_URL, CLIENT_TYPE } from "../api/config";
 import { User } from "../types";
-const BASE_URL = "http://localhost:3001";
 
 interface AuthState {
   user: User | null;
@@ -43,6 +43,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           headers: {
             // manually inject the access token so backend doesn't 401
             "access-token": accessToken,
+            "x-client-type": CLIENT_TYPE,
           },
         },
       );
@@ -82,7 +83,10 @@ export const useAuthStore = create<AuthState>((set, get) => ({
           const response = await axios.post(
             `${BASE_URL}/refresh-token`,
             {},
-            { withCredentials: true },
+            {
+              withCredentials: true,
+              headers: { "x-client-type": CLIENT_TYPE },
+            },
           );
           const { accessToken } = response.data.data;
           set({ accessToken, isAuthenticated: true, isLoading: false });

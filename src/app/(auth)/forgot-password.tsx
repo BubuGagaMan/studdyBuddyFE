@@ -35,8 +35,7 @@ export default function ForgotPasswordScreen() {
 
     setIsLoading(true);
     try {
-      // NOTE: Adjust this URL to match your fastify routes
-      await api.post("/auth/reset-password-request", {
+      await api.post("/password-reset-code", {
         email: email.trim().toLowerCase(),
       });
 
@@ -62,8 +61,7 @@ export default function ForgotPasswordScreen() {
 
     setIsLoading(true);
     try {
-      // NOTE: Adjust this URL to match your fastify routes (this belongs to user controller)
-      const response = await api.post("/user/reset-password", {
+      const response = await api.put("/user-password-reset", {
         confirmationCode: confirmationCode.trim(),
         password: newPassword,
       });
@@ -72,7 +70,7 @@ export default function ForgotPasswordScreen() {
         "Success",
         response.data.message || "Your password has been reset!",
       );
-      router.replace("/"); // Adjust to point to your login screen
+      router.replace("/(auth)/login");
     } catch (error: any) {
       Alert.alert(
         "Whoops",
