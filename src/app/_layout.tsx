@@ -1,25 +1,34 @@
 // src/app/_layout.tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { Slot, useRouter, useSegments } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
-import { ActivityIndicator, View } from "react-native";
-import { useAuthStore } from "../store/useAuthStore";
+import { queryClient } from "@/shared/api/queryClient";
+import { useActiveFontLoaded } from "@/shared/theme/useActiveFontLoaded";
+import { useAuthStore } from "@/shared/auth/useAuthStore";
 
-// Initialize the query client
-const queryClient = new QueryClient();
+SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const { isAuthenticated, initializeAuth, isLoading } = useAuthStore();
+  // waits for saved preferences, then the chosen handwriting font
+  const fontReady = useActiveFontLoaded();
   const segments = useSegments();
   const router = useRouter();
+
+  const ready = !isLoading && fontReady;
 
   useEffect(() => {
     initializeAuth();
   }, []);
 
   useEffect(() => {
-    if (isLoading) return;
+    if (ready) SplashScreen.hideAsync();
+  }, [ready]);
+
+  useEffect(() => {
+    if (!ready) return;
 
     const inAuthGroup = segments[0] === "(auth)";
 
@@ -28,15 +37,9 @@ export default function RootLayout() {
     } else if (isAuthenticated && inAuthGroup) {
       router.replace("/");
     }
-  }, [isAuthenticated, segments, isLoading]);
+  }, [isAuthenticated, segments, ready]);
 
-  if (isLoading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <ActivityIndicator size="large" />
-      </View>
-    );
-  }
+  if (!ready) return null;
 
   // Wrap the Slot with the QueryClientProvider and inject the StatusBar
   return (
