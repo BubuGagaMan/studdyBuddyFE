@@ -1,8 +1,8 @@
-// src/api/client.ts
+// src/shared/api/client.ts
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "@/shared/auth/useAuthStore";
 import { BASE_URL, CLIENT_TYPE } from "./config";
 
 export const api = axios.create({
@@ -81,8 +81,7 @@ const refreshAccessToken = async (): Promise<string> => {
     }
   }
 
-  const { user, setAuth } = useAuthStore.getState();
-  setAuth(user!, newAccess);
+  useAuthStore.getState().setAuth(newAccess);
 
   return newAccess;
 };

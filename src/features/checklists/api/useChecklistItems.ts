@@ -1,6 +1,6 @@
-// src/hooks/useChecklistItems.ts
+// src/features/checklists/api/useChecklistItems.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "../api/client";
+import { api } from "@/shared/api/client";
 import { ChecklistItem, ChecklistItemEntry, ChecklistItemType } from "../types";
 
 export const useChecklistItems = (checklistId: string) => {
@@ -14,6 +14,15 @@ export const useChecklistItems = (checklistId: string) => {
   });
 };
 
+/** Payload for PATCH /checklist/item/:id/entry - the fields depend on the item type. */
+export type EntryUpdate =
+  | { completed: boolean }
+  | { addedAmount: number }
+  | { current: number }
+  | { durationSeconds: number }
+  | { selectedRangeNumber: number }
+  | { selectedCategory: string };
+
 export const useUpdateItemEntry = (checklistId: string) => {
   const queryClient = useQueryClient();
 
@@ -23,7 +32,7 @@ export const useUpdateItemEntry = (checklistId: string) => {
       payload,
     }: {
       itemId: string;
-      payload: any;
+      payload: EntryUpdate;
     }) => {
       const response = await api.patch(`/checklist/item/${itemId}/entry`, payload);
       return response.data;
@@ -53,10 +62,10 @@ export const useUpdateItemEntry = (checklistId: string) => {
                   ? [{ ...item.entries[0] }]
                   : [{ id: "temp", timeframeKey: "temp" }];
 
-              if (payload.completed !== undefined) {
+              if ("completed" in payload) {
                 clonedEntries[0].completed = payload.completed;
               }
-              if (payload.addedAmount !== undefined) {
+              if ("addedAmount" in payload) {
                 clonedEntries[0].current =
                   (clonedEntries[0].current || 0) + payload.addedAmount;
               }
