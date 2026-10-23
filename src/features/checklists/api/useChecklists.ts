@@ -1,6 +1,6 @@
-// src/hooks/useChecklists.ts
+// src/features/checklists/api/useChecklists.ts
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "../api/client";
+import { api } from "@/shared/api/client";
 import { Checklist } from "../types";
 
 export const useChecklist = (id: string) => {

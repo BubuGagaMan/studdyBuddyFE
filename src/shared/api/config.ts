@@ -1,4 +1,4 @@
-// src/api/config.ts
+// src/shared/api/config.ts
 import { Platform } from "react-native";
 
 // Web relies on the httpOnly refresh_token cookie, which the browser only stores/sends

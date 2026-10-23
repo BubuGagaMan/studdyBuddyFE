@@ -2,27 +2,26 @@ import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { create } from "zustand";
-import { BASE_URL, CLIENT_TYPE } from "../api/config";
-import { User } from "../types";
+import { BASE_URL, CLIENT_TYPE } from "@/shared/api/config";
+import { queryClient } from "@/shared/api/queryClient";
 
+// Only the session lives here. The user's profile is server data - see useCurrentUser.
 interface AuthState {
-  user: User | null;
   accessToken: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  setAuth: (user: User, accessToken: string) => void;
+  setAuth: (accessToken: string) => void;
   logout: () => Promise<void>;
   initializeAuth: () => Promise<void>;
 }
 
 export const useAuthStore = create<AuthState>((set, get) => ({
-  user: null,
   accessToken: null,
   isAuthenticated: false,
   isLoading: true,
 
-  setAuth: (user, accessToken) =>
-    set({ user, accessToken, isAuthenticated: true, isLoading: false }),
+  setAuth: (accessToken) =>
+    set({ accessToken, isAuthenticated: true, isLoading: false }),
 
   logout: async () => {
     const { accessToken } = get();
@@ -60,9 +59,11 @@ export const useAuthStore = create<AuthState>((set, get) => ({
       await SecureStore.deleteItemAsync("refresh_token");
     }
 
+    // drop cached server data, so the next user on this device never sees the previous one's
+    queryClient.clear();
+
     // wipe global state
     set({
-      user: null,
       accessToken: null,
       isAuthenticated: false,
       isLoading: false,

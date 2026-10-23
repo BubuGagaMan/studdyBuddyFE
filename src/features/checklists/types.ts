@@ -1,17 +1,4 @@
-// src/types/index.ts
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  roles: string[];
-  suspended: boolean;
-}
-
-export interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
+// src/features/checklists/types.ts
 
 export type ChecklistItemType =
   | "boolean"
@@ -22,7 +9,7 @@ export type ChecklistItemType =
   | "number_range"
   | "categorical";
 
-// --- NEW SETTINGS INTERFACES ---
+// item settings, by item type
 export interface CountTargetSettings {
   target: number;
 }
@@ -44,6 +31,8 @@ export type ItemSettings =
   | CategoricalSettings
   | Record<string, never>; // For boolean, simple_time, count_continuous
 
+export type ResetUnit = "hours" | "days" | "weeks" | "months";
+
 export interface ChecklistItemEntry {
   id: string;
   timeframeKey: string;
@@ -62,7 +51,7 @@ export interface ChecklistItem {
   settings: ItemSettings;
   entries: ChecklistItemEntry[];
   itemResetIntervalValue?: number;
-  itemResetIntervalUnit?: "hours" | "days" | "weeks" | "months";
+  itemResetIntervalUnit?: ResetUnit;
 }
 
 export interface Checklist {
@@ -70,6 +59,6 @@ export interface Checklist {
   name: string;
   isPerItem: boolean;
   resetIntervalValue: number | null;
-  resetIntervalUnit: "hours" | "days" | "weeks" | "months" | null;
+  resetIntervalUnit: ResetUnit | null;
   items?: ChecklistItem[];
 }
