@@ -1,0 +1,26 @@
+// src/shared/ui/index.ts
+export { BackLink } from "./BackLink";
+export { ChoiceChip } from "./ChoiceChip";
+export { ConfirmDialog } from "./ConfirmDialog";
+export { DialogActions } from "./DialogActions";
+export { EmptyPage } from "./EmptyPage";
+export { InkNote } from "./InkNote";
+export { LinedInput } from "./LinedInput";
+export { NoteCard } from "./NoteCard";
+export { NumberInput } from "./NumberInput";
+export { NotebookScreen } from "./NotebookScreen";
+export { NoteText } from "./NoteText";
+export { PageHeader } from "./PageHeader";
+export { PaperBackground } from "./PaperBackground";
+export { PageStatus } from "./PageStatus";
+export { PaperDialog } from "./PaperDialog";
+export { PromptDialog } from "./PromptDialog";
+export { SelectableCard } from "./SelectableCard";
+export { SketchBox } from "./SketchBox";
+export { SketchButton } from "./SketchButton";
+export { SketchCheckbox } from "./SketchCheckbox";
+export { SketchCircle } from "./SketchCircle";
+export { SketchIconButton } from "./SketchIconButton";
+export { SketchLine } from "./SketchLine";
+export { SketchTick } from "./SketchTick";
+export { StruckText } from "./StruckText";

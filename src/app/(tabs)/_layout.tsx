@@ -4,17 +4,20 @@ import { Tabs } from "expo-router";
 import React from "react";
 import { TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { colors } from "../../constants/colors";
+import { TabBarPaper } from "@/shared/ui/navigation/TabBarPaper";
+import { useTheme } from "@/shared/theme";
 
 export default function TabLayout() {
   const insets = useSafeAreaInsets();
+  const theme = useTheme();
 
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: colors.primary,
-        tabBarInactiveTintColor: colors.textMuted,
+        tabBarActiveTintColor: theme.colors.primary,
+        tabBarInactiveTintColor: theme.colors.inkMuted,
+        tabBarBackground: () => <TabBarPaper />,
 
         // FIX: Extract `ref` alongside the other props and cast it to a strict View Ref
         tabBarButton: ({
@@ -28,6 +31,9 @@ export default function TabLayout() {
           onPressOut,
           children,
           ref,
+          // dropped: with an href, react-native-web renders a real link and each tab
+          // press reloads the whole page instead of switching tabs
+          href: _href,
           ...props
         }) => (
           <TouchableOpacity
@@ -48,20 +54,22 @@ export default function TabLayout() {
         ),
 
         tabBarStyle: {
-          backgroundColor: colors.surface,
-          borderTopColor: colors.border,
-          height: 60 + insets.bottom,
-          paddingBottom: 8 + insets.bottom,
-          paddingTop: 8,
+          backgroundColor: "transparent",
+          borderTopWidth: 0,
+          elevation: 0,
+          height: 70 + insets.bottom,
+          paddingBottom: 10 + insets.bottom,
+          paddingTop: 6,
         },
         tabBarLabelStyle: {
+          fontFamily: theme.fonts.hand,
           fontSize: 12,
-          fontWeight: "600",
+          lineHeight: 18,
         },
       }}
     >
       <Tabs.Screen
-        name="index"
+        name="(home)"
         options={{
           title: "Checklists",
           tabBarIcon: ({ color }) => (
